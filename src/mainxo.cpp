@@ -1,4 +1,4 @@
-// main.cpp
+// mainxo
 #include "raylib.h"
 #include "xo.h"
 
