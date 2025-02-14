@@ -1,4 +1,4 @@
-
+//โค้ด
 #include "xo.h"
 
 TicTacToe::TicTacToe() {
@@ -38,7 +38,7 @@ void TicTacToe::UpdateGame() {
         int mouseY = GetMouseY();
 
         int offX = (GetScreenWidth() - BOARDSIZE * CELLSIZE) / 2;
-        int offY = (GetScreenHeight() - BOARDSIZE * CELLSIZE) / 2;
+        int offY = (GetScreenHeight() - BOAR3DSIZE * CELLSIZE) / 2;
 
         if (mouseX >= offX && mouseX < offX + BOARDSIZE * CELLSIZE &&
             mouseY >= offY && mouseY < offY + BOARDSIZE * CELLSIZE) {
