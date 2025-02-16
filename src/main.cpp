@@ -7,7 +7,7 @@ int main() {
     Game TicTacToom;
     
     while (!WindowShouldClose()) {
-        
+
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             Vector2 mousePos = GetMousePosition();
             int boardX = (mousePos.x - (SCREEN_WIDTH/2 - (BOARD_SIZE*CELL_SIZE)/2)) / CELL_SIZE;
@@ -33,4 +33,5 @@ int main() {
     
     CloseWindow();
     return 0;
+    
 }

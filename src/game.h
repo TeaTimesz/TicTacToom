@@ -19,7 +19,7 @@ const int MARKER_PADDING = 5;  // ระยะห่างขอบของส�
 struct Cell {
     bool isMine = false;
     bool isRevealed = false;
-    bool isPlayer1 = false;  // แทน player 1 ด้วย true (BLUE)
+    bool isPlayer1 = false;  // แทน player 1 ด้วย true
     bool hasPlayer = false;
     int adjacentMines = 0;
 };
