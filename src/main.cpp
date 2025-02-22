@@ -117,7 +117,6 @@ private:
         // Update maxLength if this direction yields a longer line.
         maxLength = std::max(maxLength, count);
     }
-
     return maxLength;
 }
 
