@@ -4,11 +4,11 @@
 #include <ctime>
 #include <string>
 
-const int SCREEN_WIDTH = 1024;
-const int SCREEN_HEIGHT = 768;
-const int BOARD_SIZE = 10; // customizable
-const int CELL_SIZE = 500 / BOARD_SIZE;
-const int NUM_MINES = 15;
+const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 720;
+int BOARD_SIZE = 10; // customizable
+int CELL_SIZE = 500 / BOARD_SIZE;
+int NUM_MINES = 15;
 const int WIN_LENGTH = 5;
 const int MARKER_PADDING = 5;
 
@@ -16,10 +16,6 @@ const int MARKER_PADDING = 5;
 const Color PLAYER1_COLOR = BLUE;
 const Color PLAYER2_COLOR = ORANGE;
 
-/*enum class GameMode {
-    CLASSIC,
-    SCORE
-};*/
 
 struct Cell {
     bool isMine = false;
@@ -41,36 +37,6 @@ private:
     int revealedMines = 0;
     //GameMode currentMode;
     
-    void InitializeBoard() {
-
-        board = std::vector<std::vector<Cell>>(BOARD_SIZE, 
-               std::vector<Cell>(BOARD_SIZE));
-        
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, BOARD_SIZE * BOARD_SIZE - 1);
-        
-        int minesPlaced = 0;
-        while (minesPlaced < NUM_MINES) {
-            int pos = dis(gen);
-            int row = pos / BOARD_SIZE;
-            int col = pos % BOARD_SIZE;
-            
-            if (!board[row][col].isMine) {
-                board[row][col].isMine = true;
-                minesPlaced++;
-            }
-        }
-        
-        // Calculate and Display surrounded mines
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
-                if (!board[i][j].isMine) {
-                    board[i][j].adjacentMines = CountAdjacentMines(i, j);
-                }
-            }
-        }
-    }
     
     int CountAdjacentMines(int row, int col) {
         int count = 0;
@@ -132,7 +98,7 @@ private:
     }
 
 public:
-    Game(/*GameMode mode = GameMode::CLASSIC*/) /*: currentMode(mode)*/ {
+    Game() {
         Reset();
     }
     
@@ -144,6 +110,37 @@ public:
         player1Score = 0;
         player2Score = 0;
         revealedMines = 0;
+    }
+
+    void InitializeBoard() {
+
+        board = std::vector<std::vector<Cell>>(BOARD_SIZE, 
+               std::vector<Cell>(BOARD_SIZE));
+        
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, BOARD_SIZE * BOARD_SIZE - 1);
+        
+        int minesPlaced = 0;
+        while (minesPlaced < NUM_MINES) {
+            int pos = dis(gen);
+            int row = pos / BOARD_SIZE;
+            int col = pos % BOARD_SIZE;
+            
+            if (!board[row][col].isMine) {
+                board[row][col].isMine = true;
+                minesPlaced++;
+            }
+        }
+        
+        // Calculate and Display surrounded mines
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                if (!board[i][j].isMine) {
+                    board[i][j].adjacentMines = CountAdjacentMines(i, j);
+                }
+            }
+        }
     }
     
     void ToggleFlag(int row, int col) {
@@ -221,11 +218,12 @@ public:
                         
                         if (board[i][j].adjacentMines > 0) {
                             std::string count = std::to_string(board[i][j].adjacentMines);
-                            int textWidth = MeasureText(count.c_str(), 20);
+                            const char* charCount = count.c_str();
+                            Vector2 ts = MeasureTextEx(GetFontDefault(), charCount, 200 / BOARD_SIZE, 0);
                             DrawText(count.c_str(), 
-                                   (int)(cell.x + (CELL_SIZE - textWidth) / 2),
-                                   (int)(cell.y + (CELL_SIZE - 20) / 2),
-                                   20, WHITE);
+                                   (int)(cell.x + (CELL_SIZE - ts.x) / 2),
+                                   (int)(cell.y + (CELL_SIZE - ts.y) / 2),
+                                   200 / BOARD_SIZE, WHITE);
                         }
                     }
                 } else {
