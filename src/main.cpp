@@ -1,14 +1,12 @@
 #include "button.h"
 #include "menu.h"
 
-#include <vector>
-#include <random>
-#include <ctime>
-#include <string>
-
 int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Minesweeper Game");
     SetTargetFPS(60);
+
+    Texture2D menu_background = LoadTexture("graphics/menuBackground.png");
+    Texture2D game_background = LoadTexture("graphics/gameBackground.png");
 
     while (!WindowShouldClose()) {
         BeginDrawing();
@@ -18,12 +16,14 @@ int main() {
                 NUM_MINES = 15;
                 CELL_SIZE = 500 / BOARD_SIZE;
                 game.InitializeBoard();
+                DrawTexture(menu_background, 0, 0, WHITE);
                 DrawMenu();
                 break;
             case GameState::TUTORIAL:
                 DrawTutorial();
                 break;
             case GameState::MODE_SELECT:
+                DrawTexture(menu_background, 0, 0, WHITE);
                 DrawModeSelect();
                 break;
             case GameState::CUSTOM_SETUP:
@@ -32,6 +32,7 @@ int main() {
                 
             case GameState::GAME:
                 ClearBackground(RAYWHITE);
+                DrawTexture(game_background, 0, 0, WHITE);
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) 
                 {
                     Vector2 mousePos = GetMousePosition();
