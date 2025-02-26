@@ -23,14 +23,14 @@ class Button{
         }
 
         void Draw(){
-            DrawTexture(texture,position,WHITE);
+            DrawTexture(texture, position.x, position.y,WHITE);
         }
 
-        bool isPressed(Vector2 mousePos,bool mosePressed){
-            Rectangle rect = {position.x,position.y,texture.width,texture.height};
+        bool isPressed(Vector2 mousePos,bool mousePressed){
+            Rectangle rect = {position.x,position.y,(float)texture.width,(float)texture.height};
             if(CheckCollisionPointRec(mousePos,rect) && mousePressed){
                 return true;
             }
             return false;
         }
-}
+};
