@@ -75,13 +75,13 @@ void DrawCustomSetup() {
     ClearBackground(RAYWHITE);
     DrawText("Custom Game Setup", SCREEN_WIDTH / 2 - 150, 100, 30, DARKGREEN);
 
-    DrawText(("Board Size: " + std::to_string(BOARD_SIZE)).c_str(), 400, 250, 20, BLACK);
-    DrawText(("Number of Mines: " + std::to_string(NUM_MINES)).c_str(), 400, 300, 20, BLACK);
+    DrawText(("Board Size: " + std::to_string(BOARD_SIZE)).c_str(), 560, 250, 20, BLACK);
+    DrawText(("Number of Mines: " + std::to_string(NUM_MINES)).c_str(), 540, 300, 20, BLACK);
 
-    Rectangle sizeUp = { 700, 240, 30, 30 };
-    Rectangle sizeDown = { 350, 240, 30, 30 };
-    Rectangle minesUp = { 700, 290, 30, 30 };
-    Rectangle minesDown = { 350, 290, 30, 30 };
+    Rectangle sizeUp = { 640 + 170, 240, 30, 30 };
+    Rectangle sizeDown = { 640 - 200, 240, 30, 30 };
+    Rectangle minesUp = { 640 + 170, 290, 30, 30 };
+    Rectangle minesDown = { 640 - 200, 290, 30, 30 };
     Rectangle startButton = { SCREEN_WIDTH / 2 - 100, 400, 200, 50 };
     Rectangle backButton = { SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT - 100, 200, 50 };
 
