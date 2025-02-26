@@ -185,6 +185,15 @@ public:
         }
         
         player1Turn = !player1Turn;
+
+        gameOver = true;
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                if (!board[i][j].isMine && !board[i][j].isRevealed) gameOver = false;
+            }
+        }
+        winner = (player1Score > player2Score) ? "Blue" : (player2Score > player1Score) ? "Orange" : "Tie";
+
     }
     
     void Draw() {
@@ -250,13 +259,12 @@ public:
             } else {
                 status = "Winner: " + winner;
             }
-            DrawText("Press R to restart", SCREEN_WIDTH - 200, 10, 20, BLACK);
         } else {
             status = "Current Player: " + std::string(player1Turn ? "Blue" : "Orange");
+            DrawRectangle((SCREEN_WIDTH / 2) + 150, 10, 20, 20, (player1Turn ? PLAYER1_COLOR : PLAYER2_COLOR));
         }
 
         DrawText(status.c_str(), SCREEN_WIDTH/2 - 100, 10, 20, BLACK);
-        DrawRectangle((SCREEN_WIDTH / 2) - (CELL_SIZE / 2), 40, CELL_SIZE, CELL_SIZE, (player1Turn ? PLAYER1_COLOR : PLAYER2_COLOR));
     }
     
     bool IsGameOver() const { return gameOver; }
