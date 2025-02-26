@@ -11,6 +11,10 @@ Game game;
 enum class GameState { MENU, TUTORIAL, MODE_SELECT, CUSTOM_SETUP, GAME};
 GameState currentState = GameState::MENU;
 
+// Tutorial images
+std::vector<Texture2D> tutorialImages;
+int currentTutorialImage = 0;
+
 // Button helper functions
 void DrawButton(Rectangle button, const char* text, Color color) {
     DrawRectangleRec(button, color);
@@ -39,16 +43,31 @@ void DrawMenu() {
 
 void DrawTutorial() {
     ClearBackground(RAYWHITE);
-    DrawText("How to Play", SCREEN_WIDTH / 2 - 100, 100, 30, DARKGREEN);
-    DrawText("1. Left click to reveal a cell.", 100, 200, 20, BLACK);
-    DrawText("2. Right click to flag a mine.", 100, 240, 20, BLACK);
-    DrawText("3. Connect 3-5 cells in a row for points.", 100, 280, 20, BLACK);
-    DrawText("4. Find all mines to end the game.", 100, 320, 20, BLACK);
+
+    if (!tutorialImages.empty()) {
+        int imageWidth = tutorialImages[currentTutorialImage].width;
+        int imageHeight = tutorialImages[currentTutorialImage].height;
+        
+        // คำนวณตำแหน่งให้อยู่กลางจอ
+        int posX = (SCREEN_WIDTH - imageWidth) / 2;
+        int posY = (SCREEN_HEIGHT - imageHeight) / 2;
+
+        DrawTexture(tutorialImages[currentTutorialImage], posX, posY, WHITE);
+    }
 
     Rectangle backButton = { SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT - 100, 200, 50 };
+    Rectangle nextButton = { SCREEN_WIDTH / 2 + 150, SCREEN_HEIGHT - 100, 100, 50 };
+    Rectangle prevButton = { SCREEN_WIDTH / 2 - 250, SCREEN_HEIGHT - 100, 100, 50 };
+
     DrawButton(backButton, "Back", RED);
+    DrawButton(nextButton, ">", LIGHTGRAY);
+    DrawButton(prevButton, "<", LIGHTGRAY);
+
     if (IsButtonClicked(backButton)) currentState = GameState::MENU;
+    if (IsButtonClicked(nextButton) && currentTutorialImage < tutorialImages.size() - 1) currentTutorialImage++;
+    if (IsButtonClicked(prevButton) && currentTutorialImage > 0) currentTutorialImage--;
 }
+
 
 void DrawModeSelect() {
     ClearBackground(RAYWHITE);
@@ -56,57 +75,42 @@ void DrawModeSelect() {
 
     Rectangle defaultButton = { SCREEN_WIDTH / 2 - 100, 300, 200, 50 };
     Rectangle customButton = { SCREEN_WIDTH / 2 - 100, 400, 200, 50 };
-    Rectangle backButton = { SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT - 100, 200, 50 };
 
-    DrawButton(defaultButton, "Default", GREEN);
-    DrawButton(customButton, "Custom", ORANGE);
-    DrawButton(backButton, "Back", RED);
+    DrawButton(defaultButton, "Default Mode", GREEN);
+    DrawButton(customButton, "Custom Mode", ORANGE);
 
-    if (IsButtonClicked(defaultButton)) {
-        ::BOARD_SIZE = 10;
-        ::NUM_MINES = 15;
-        currentState = GameState::GAME;
-    }
+    if (IsButtonClicked(defaultButton)) currentState = GameState::GAME;
     if (IsButtonClicked(customButton)) currentState = GameState::CUSTOM_SETUP;
-    if (IsButtonClicked(backButton)) currentState = GameState::MENU;
 }
 
 void DrawCustomSetup() {
     ClearBackground(RAYWHITE);
     DrawText("Custom Game Setup", SCREEN_WIDTH / 2 - 150, 100, 30, DARKGREEN);
 
-    DrawText(("Board Size: " + std::to_string(BOARD_SIZE)).c_str(), 560, 250, 20, BLACK);
-    DrawText(("Number of Mines: " + std::to_string(NUM_MINES)).c_str(), 540, 300, 20, BLACK);
-
-    Rectangle sizeUp = { 640 + 170, 240, 30, 30 };
-    Rectangle sizeDown = { 640 - 200, 240, 30, 30 };
-    Rectangle minesUp = { 640 + 170, 290, 30, 30 };
-    Rectangle minesDown = { 640 - 200, 290, 30, 30 };
-    Rectangle startButton = { SCREEN_WIDTH / 2 - 100, 400, 200, 50 };
     Rectangle backButton = { SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT - 100, 200, 50 };
-
-    DrawButton(sizeUp, "+", LIGHTGRAY);
-    DrawButton(sizeDown, "-", LIGHTGRAY);
-    DrawButton(minesUp, "+", LIGHTGRAY);
-    DrawButton(minesDown, "-", LIGHTGRAY);
-    DrawButton(startButton, "Start Game", GREEN);
     DrawButton(backButton, "Back", RED);
 
-    if (IsButtonClicked(sizeUp) && BOARD_SIZE < 10) { BOARD_SIZE++; CELL_SIZE = 500 / BOARD_SIZE; }
-    if (IsButtonClicked(sizeDown) && BOARD_SIZE > 5) { BOARD_SIZE--; CELL_SIZE = 500 / BOARD_SIZE; }
-    if (IsButtonClicked(minesUp) && NUM_MINES < BOARD_SIZE * BOARD_SIZE / 2) NUM_MINES++;
-    if (IsButtonClicked(minesDown) && NUM_MINES > 1) NUM_MINES--;
-
-    if (IsButtonClicked(startButton)) { 
-        game.InitializeBoard();
-        currentState = GameState::GAME;
-    }
     if (IsButtonClicked(backButton)) currentState = GameState::MODE_SELECT;
+}
+
+void LoadTutorialImages() {
+    tutorialImages.push_back(LoadTexture("tutorial1.png"));
+    tutorialImages.push_back(LoadTexture("tutorial2.png"));
+    tutorialImages.push_back(LoadTexture("tutorial3.png"));
+    tutorialImages.push_back(LoadTexture("tutorial4.png"));
+}
+
+void UnloadTutorialImages() {
+    for (Texture2D img : tutorialImages) {
+        UnloadTexture(img);
+    }
 }
 
 int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Minesweeper Game");
     SetTargetFPS(60);
+
+    LoadTutorialImages();
 
     while (!WindowShouldClose()) {
         BeginDrawing();
@@ -127,15 +131,12 @@ int main() {
             case GameState::CUSTOM_SETUP:
                 DrawCustomSetup();
                 break;
-                
             case GameState::GAME:
                 ClearBackground(RAYWHITE);
-                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) 
-                {
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
                     Vector2 mousePos = GetMousePosition();
-                    int boardX = (mousePos.x - (SCREEN_WIDTH/2 - (BOARD_SIZE*CELL_SIZE)/2)) / CELL_SIZE;
-                    int boardY = (mousePos.y - (SCREEN_HEIGHT/2 - (BOARD_SIZE*CELL_SIZE)/2)) / CELL_SIZE;
-                    
+                    int boardX = (mousePos.x - (SCREEN_WIDTH / 2 - (BOARD_SIZE * CELL_SIZE) / 2)) / CELL_SIZE;
+                    int boardY = (mousePos.y - (SCREEN_HEIGHT / 2 - (BOARD_SIZE * CELL_SIZE) / 2)) / CELL_SIZE;
                     if (boardX >= 0 && boardX < BOARD_SIZE && boardY >= 0 && boardY < BOARD_SIZE) {
                         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                             game.HandleClick(boardY, boardX);
@@ -144,14 +145,10 @@ int main() {
                         }
                     }
                 }
-                
                 if (IsKeyPressed(KEY_R)) {
                     game.Reset();
                 }
-                
                 game.Draw();
-
-                //back button
                 Rectangle backButton = { SCREEN_WIDTH - 150, 10, 130, 40 };
                 DrawButton(backButton, "Exit Game", RED);
                 if (IsButtonClicked(backButton)) {
@@ -159,11 +156,11 @@ int main() {
                     game.Reset();
                 }
                 break;
-        
         }
         EndDrawing();
     }
 
+    UnloadTutorialImages();
     CloseWindow();
     return 0;
 }
