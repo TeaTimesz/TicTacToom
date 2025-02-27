@@ -6,7 +6,7 @@
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
-int BOARD_SIZE = 10; // customizable
+int BOARD_SIZE = 10;
 int CELL_SIZE = 500 / BOARD_SIZE;
 int NUM_MINES = 15;
 const int WIN_LENGTH = 5;
@@ -35,8 +35,6 @@ private:
     int player1Score = 0;
     int player2Score = 0;
     int revealedMines = 0;
-    //GameMode currentMode;
-    
     
     int CountAdjacentMines(int row, int col) {
         int count = 0;
@@ -57,14 +55,14 @@ private:
     int CheckLineLength(int row, int col, bool isPlayer1) {
         int totolPoints = 0;
 
-        // Define the four directions: horizontal, vertical, and two diagonals.
+        // Define the four directions: horizontal, vertical, and two diagonals
         const int directions[4][2] = { {0, 1}, {1, 0}, {1, 1}, {1, -1} };
 
-        // Check each direction.
+        // Check each direction
         for (const auto& dir : directions) {
-            int count = 1;  // Start with the current cell.
+            int count = 1;  // Start with the current cell
         
-            // Check in the positive direction.
+            // Check in the positive direction
             int r = row + dir[0], c = col + dir[1];
             while (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE 
                 && board[r][c].hasPlayer && board[r][c].isPlayer1 == isPlayer1) 
@@ -74,7 +72,7 @@ private:
                 c += dir[1];
             }
 
-            // Check in the negative direction.
+            // Check in the negative direction
             r = row - dir[0], c = col - dir[1];
             while (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE 
                 && board[r][c].hasPlayer && board[r][c].isPlayer1 == isPlayer1) 
@@ -195,8 +193,11 @@ public:
         winner = (player1Score > player2Score) ? "Blue" : (player2Score > player1Score) ? "Orange" : "Tie";
 
     }
+
+    Color sand = {217, 191, 166, 255};
+    Color sandRevealed = {176, 152, 130, 255};
     
-    void Draw(Texture2D Bomb,Texture2D BLWin,Texture2D ORWin,Texture2D Flag){
+    void Draw(Texture2D Bomb,Texture2D BLWin,Texture2D ORWin,Texture2D Flag, Texture2D TIE) {
         // Draw board
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
@@ -208,7 +209,7 @@ public:
                 };
                 
                 if (board[i][j].isRevealed) {
-                    DrawRectangleRec(cell, LIGHTGRAY);
+                    DrawRectangleRec(cell, sandRevealed);
                     
                     if (board[i][j].isMine) {
                         DrawTexture(Bomb,cell.x + (CELL_SIZE - Bomb.width) / 2,cell.y + (CELL_SIZE - Bomb.height) / 2,WHITE);
@@ -235,12 +236,12 @@ public:
                         }
                     }
                 } else {
-                    DrawRectangleRec(cell, GRAY);
+                    DrawRectangleRec(cell, sand);
                     if (board[i][j].isFlagged) {
                         DrawTexture(Flag,cell.x + (CELL_SIZE - Bomb.width) / 2,cell.y + (CELL_SIZE - Bomb.height) / 2,WHITE);
                     }
                 }
-                DrawRectangleLinesEx(cell, 2, BLACK);
+                DrawRectangleLinesEx(cell, 2, sandRevealed);
             }
         }
 
@@ -253,11 +254,11 @@ public:
         std::string status;
         if (gameOver) {
             if (winner == "Tie") {
-                status = "Game Over - It's a Tie!";
+                status = "";
             } else {
-                status = "Winner: " + winner;
+                status = "";
             }
-            if(winner == "Tie"){};
+            if(winner == "Tie"){ DrawTexture(TIE,0,0,WHITE); };
             if(winner == "Blue") DrawTexture(BLWin,0,0,WHITE);
             if(winner == "Orange") DrawTexture(ORWin,0,0,WHITE);
         } else {
