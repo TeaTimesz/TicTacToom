@@ -196,7 +196,7 @@ public:
 
     }
     
-    void Draw() {
+    void Draw(Texture2D Bomb,Texture2D BLWin,Texture2D ORWin,Texture2D Flag){
         // Draw board
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
@@ -211,8 +211,7 @@ public:
                     DrawRectangleRec(cell, LIGHTGRAY);
                     
                     if (board[i][j].isMine) {
-                        DrawText("*", (int)cell.x + CELL_SIZE/3, 
-                               (int)cell.y + CELL_SIZE/3, 40, RED);
+                        DrawTexture(Bomb,cell.x + (CELL_SIZE - Bomb.width) / 2,cell.y + (CELL_SIZE - Bomb.height) / 2,WHITE);
                     } else {
                         if (board[i][j].hasPlayer) {
                             Rectangle playerMarker = {
@@ -238,18 +237,17 @@ public:
                 } else {
                     DrawRectangleRec(cell, GRAY);
                     if (board[i][j].isFlagged) {
-                        DrawText("F", (int)cell.x + CELL_SIZE/3, 
-                               (int)cell.y + CELL_SIZE/3, 40, RED);
+                        DrawTexture(Flag,cell.x + (CELL_SIZE - Bomb.width) / 2,cell.y + (CELL_SIZE - Bomb.height) / 2,WHITE);
                     }
                 }
                 DrawRectangleLinesEx(cell, 2, BLACK);
             }
         }
-        
+
         // Draw scores and status
-        DrawText(("Blue: " + std::to_string(player1Score)).c_str(), 10, 10, 20, BLUE);
-        DrawText(("Orange: " + std::to_string(player2Score)).c_str(), 10, 40, 20, ORANGE);
-        DrawText(("Mines Found: " + std::to_string(revealedMines) + "/" + std::to_string(NUM_MINES)).c_str(), 10, 70, 20, RED);
+        DrawText(("Blue: " + std::to_string(player1Score)).c_str(), 50, 40, 20, BLUE);
+        DrawText(("Orange: " + std::to_string(player2Score)).c_str(), 50, 70, 20, ORANGE);
+        DrawText(("Mines Found: " + std::to_string(revealedMines) + "/" + std::to_string(NUM_MINES)).c_str(), 50, 100, 20, RED);
         
         // Draw game status
         std::string status;
@@ -259,12 +257,17 @@ public:
             } else {
                 status = "Winner: " + winner;
             }
+            if(winner == "Tie"){};
+            if(winner == "Blue") DrawTexture(BLWin,0,0,WHITE);
+            if(winner == "Orange") DrawTexture(ORWin,0,0,WHITE);
         } else {
             status = "Current Player: " + std::string(player1Turn ? "Blue" : "Orange");
-            DrawRectangle((SCREEN_WIDTH / 2) + 150, 10, 20, 20, (player1Turn ? PLAYER1_COLOR : PLAYER2_COLOR));
+            DrawRectangle(640, 50, 40, 40, (player1Turn ? PLAYER1_COLOR : PLAYER2_COLOR));
         }
+        const char* charStatus = status.c_str();
+        Vector2 statusSize = MeasureTextEx(GetFontDefault(), charStatus, 20, 0);
+        DrawText(status.c_str(),(SCREEN_WIDTH - statusSize.x) / 2 , 10, 20, WHITE);
 
-        DrawText(status.c_str(), SCREEN_WIDTH/2 - 100, 10, 20, BLACK);
     }
     
     bool IsGameOver() const { return gameOver; }
