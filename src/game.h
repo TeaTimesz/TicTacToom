@@ -193,7 +193,7 @@ public:
         winner = (player1Score > player2Score) ? "Blue" : (player2Score > player1Score) ? "Orange" : "Tie";
 
     }
-
+                                
     Color sand = {217, 191, 166, 255};
     Color sandRevealed = {176, 152, 130, 255};
     

@@ -25,6 +25,7 @@ int main() {
     Texture2D selection_background = LoadTexture("graphics/MenubackgroundNotext.png");
     Texture2D BLWin = LoadTexture("graphics/WinnerBl.png");
     Texture2D ORWin = LoadTexture("graphics/WinnerOr.png");
+    Texture2D TIE = LoadTexture("graphics/draw.png");
     Texture2D TextBackground = LoadTexture("graphics/5.png");
 
     Button startButton("graphics/1.png",{510,300},0.5);
@@ -95,6 +96,7 @@ int main() {
                     ::CELL_SIZE = 500 / BOARD_SIZE;
                     ::NUM_MINES = 7;
                     currentState = GameState::GAME;
+                    game.InitializeBoard();
                 }
                 if (customButton.isPressed(mousePosition,mousePressed)) currentState = GameState::CUSTOM_SETUP;
                 if (backButton.isPressed(mousePosition,mousePressed)) currentState = GameState::MENU;
@@ -157,7 +159,7 @@ int main() {
                     game.Reset();
                 }
                 
-                game.Draw(Bomb,BLWin,ORWin,Flag);
+                game.Draw(Bomb,BLWin,ORWin,Flag,TIE);
 
                 //back button
                 exitButton.Draw();
