@@ -12,10 +12,9 @@ int NUM_MINES = 15;
 const int WIN_LENGTH = 5;
 const int MARKER_PADDING = 5;
 
-
 const Color PLAYER1_COLOR = BLUE;
 const Color PLAYER2_COLOR = ORANGE;
-
+const Color HIGHLIGHT_COLOR = YELLOW;
 
 struct Cell {
     bool isMine = false;
@@ -24,6 +23,10 @@ struct Cell {
     bool isPlayer1 = false;
     bool hasPlayer = false;
     int adjacentMines = 0;
+    //animation
+    bool isWinningCell = false;
+    bool isAnimatingWin = false;
+    double animatingWinStartTime = 0;
 };
 
 class Game {
@@ -61,6 +64,9 @@ private:
         // Check each direction
         for (const auto& dir : directions) {
             int count = 1;  // Start with the current cell
+
+            std::vector<std::pair<int, int>> winningCells;
+            winningCells.push_back({row, col});
         
             // Check in the positive direction
             int r = row + dir[0], c = col + dir[1];
@@ -68,6 +74,7 @@ private:
                 && board[r][c].hasPlayer && board[r][c].isPlayer1 == isPlayer1) 
             {
                 count++;
+                winningCells.push_back({r, c});
                 r += dir[0];
                 c += dir[1];
             }
@@ -78,11 +85,17 @@ private:
                 && board[r][c].hasPlayer && board[r][c].isPlayer1 == isPlayer1) 
             {
                 count++;
+                winningCells.push_back({r, c});
                 r -= dir[0];
                 c -= dir[1];
             }
 
             totolPoints += CalculateScore(count);
+            for (const auto& cell : winningCells) {
+                board[cell.first][cell.second].isWinningCell = true;
+                board[cell.first][cell.second].isAnimatingWin = true;
+                board[cell.first][cell.second].animatingWinStartTime = GetTime();
+            }
         }
         return totolPoints;
     }
@@ -207,6 +220,21 @@ public:
                     (float)CELL_SIZE,
                     (float)CELL_SIZE
                 };
+
+                //animation winning cell
+                if (board[i][j].isWinningCell) {
+                    double elapsedWin = GetTime() - board[i][j].animatingWinStartTime;
+                    float scale = 1.0f;
+                    if (elapsedWin < 1) {
+                        scale = 1.0f + sinf((float)elapsedWin * (float)PI) * 0.2f;
+                        cell.x -= (CELL_SIZE * (scale - 1.0f)) / 2;
+                        cell.y -= (CELL_SIZE * (scale - 1.0f)) / 2;
+                        cell.width *= scale;
+                        cell.height *= scale;
+                    } else {
+                        board[i][j].isAnimatingWin = false;
+                    }
+                }
                 
                 if (board[i][j].isRevealed) {
                     DrawRectangleRec(cell, sandRevealed);
@@ -228,10 +256,10 @@ public:
                         if (board[i][j].adjacentMines > 0) {
                             std::string count = std::to_string(board[i][j].adjacentMines);
                             const char* charCount = count.c_str();
-                            Vector2 ts = MeasureTextEx(GetFontDefault(), charCount, 200 / BOARD_SIZE, 0);
+                            Vector2 textSize = MeasureTextEx(GetFontDefault(), charCount, 200 / BOARD_SIZE, 0);
                             DrawText(count.c_str(), 
-                                   (int)(cell.x + (CELL_SIZE - ts.x) / 2),
-                                   (int)(cell.y + (CELL_SIZE - ts.y) / 2),
+                                   (int)(cell.x + (CELL_SIZE - textSize.x) / 2),
+                                   (int)(cell.y + (CELL_SIZE - textSize.y) / 2),
                                    200 / BOARD_SIZE, WHITE);
                         }
                     }
@@ -252,12 +280,7 @@ public:
         
         // Draw game status
         std::string status;
-        if (gameOver) {
-            if (winner == "Tie") {
-                status = "";
-            } else {
-                status = "";
-            }
+        if (gameOver) { 
             if(winner == "Tie"){ DrawTexture(TIE,0,0,WHITE); };
             if(winner == "Blue") DrawTexture(BLWin,0,0,WHITE);
             if(winner == "Orange") DrawTexture(ORWin,0,0,WHITE);
