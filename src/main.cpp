@@ -27,6 +27,13 @@ int main() {
     Texture2D ORWin = LoadTexture("graphics/WinnerOr.png");
     Texture2D TIE = LoadTexture("graphics/draw.png");
     Texture2D TextBackground = LoadTexture("graphics/5.png");
+    Texture2D tutorialImage1 = LoadTexture("graphics/Tutorial1.png"); 
+    Texture2D tutorialImage2 = LoadTexture("graphics/Tutorial2.png");
+    Texture2D tutorialImage3 = LoadTexture("graphics/Tutorial3.png");
+    Texture2D tutorialImage4 = LoadTexture("graphics/Tutorial4.png");
+    Texture2D nextArrow = LoadTexture("graphics/next.png"); // ลูกศรขวา (ถัดไป)
+    Texture2D prevArrow = LoadTexture("graphics/pre.png");
+    
 
     Button startButton("graphics/1.png",{510,300},0.5);
     Button tutorialButton("graphics/2.png",{510,430},0.5);
@@ -38,7 +45,6 @@ int main() {
     Button sizeDown("graphics/9.png",{400,100},0.25);
     Button mineUp("graphics/8.png",{750,230},0.25);
     Button mineDown("graphics/9.png",{400,230},0.25);
-
     Image image1 = LoadImage("graphics/10.png");
     ImageResize(&image1,CELL_SIZE,CELL_SIZE);
     Texture2D Bomb = LoadTextureFromImage(image1);
@@ -54,8 +60,8 @@ int main() {
 
         switch (currentState) {
             case GameState::MENU:
-                BOARD_SIZE = 10;
-                NUM_MINES = 15;
+                BOARD_SIZE = 7;
+                NUM_MINES = 7;
                 CELL_SIZE = 500 / BOARD_SIZE;
                 game.InitializeBoard();
                 ClearBackground(RAYWHITE);
@@ -68,19 +74,62 @@ int main() {
                 if (tutorialButton.isPressed(mousePosition,mousePressed)) currentState = GameState::TUTORIAL;
                 break;
 
-            case GameState::TUTORIAL:
-                ClearBackground(RAYWHITE);
-                DrawTexture(selection_background,0,0,WHITE);
-                DrawText("How to Play", SCREEN_WIDTH / 2 - 100, 100, 30, DARKGREEN);
-                DrawText("1. Left click to reveal a cell.", 100, 200, 20, BLACK);
-                DrawText("2. Right click to flag a mine.", 100, 240, 20, BLACK);
-                DrawText("3. Connect 3-5 cells in a row for points.", 100, 280, 20, BLACK);
-                DrawText("4. Find all mines to end the game.", 100, 320, 20, BLACK);
-        
-                backButton.Draw();
-                if (backButton.isPressed(mousePosition,mousePressed)) currentState = GameState::MENU;
-                break;
-
+                case GameState::TUTORIAL: {
+                    ClearBackground(RAYWHITE);
+                    DrawTexture(selection_background, 0, 0, WHITE);
+                
+                    static int currentImageIndex = 0; 
+                    Texture2D tutorialImages[] = { tutorialImage1, tutorialImage2, tutorialImage3, tutorialImage4 }; // อาร์เรย์รูปภาพ
+                
+                    Texture2D currentImage = tutorialImages[currentImageIndex];
+                
+                    float scale = 0.82;
+                    Vector2 imageSize = { (float)currentImage.width * scale, (float)currentImage.height * scale };
+                
+                    Vector2 imagePosition = {
+                        (SCREEN_WIDTH - imageSize.x) / 2, // ตำแหน่ง X (อยู่ตรงกลาง)
+                        (SCREEN_HEIGHT - imageSize.y) / 2 - 20 // ตำแหน่ง Y (ขยับขึ้นไปข้างบน 20 พิกเซล)
+                    };
+                
+                    // วาดรูปภาพ
+                    DrawTextureEx(currentImage, imagePosition, 0, scale, WHITE);
+                
+                    // โหลดรูปภาพลูกศร
+                     // ลูกศรซ้าย (ย้อนกลับ)
+                
+                    // ปรับขนาดลูกศร
+                    float arrowScale = 0.30; // ปรับขนาดลูกศรให้เล็กลง 
+                
+                    // ปุ่มลูกศรซ้าย (ย้อนกลับ)
+                    if (currentImageIndex > 0) {
+                        Vector2 nextArrowPosition = {
+                            50, // ตำแหน่ง X (ด้านซ้ายของหน้าจอ)
+                            SCREEN_HEIGHT / 2 - nextArrow.height * arrowScale / 2 // ตำแหน่ง Y (กึ่งกลางในแนวตั้ง)
+                        };
+                        DrawTextureEx(nextArrow, nextArrowPosition, 0, arrowScale, WHITE);
+                        if (CheckCollisionPointRec(mousePosition, { nextArrowPosition.x, nextArrowPosition.y, (float)nextArrow.width * arrowScale, (float)nextArrow.height * arrowScale }) && mousePressed) {
+                            currentImageIndex--; // เลื่อนไปรูปภาพก่อนหน้า
+                        }
+                    }
+                
+                    //ปุ่มลูกศรขวา (ถัดไป)
+                    if (currentImageIndex < 3) {
+                        Vector2 prevArrowPosition = {
+                            SCREEN_WIDTH - 200, // ตำแหน่ง X (ด้านขวาของหน้าจอ)
+                            SCREEN_HEIGHT / 2 - prevArrow.height * arrowScale / 2 // ตำแหน่ง Y (กึ่งกลางในแนวตั้ง)
+                        };
+                        DrawTextureEx(prevArrow, prevArrowPosition, 0, arrowScale, WHITE);
+                        if (CheckCollisionPointRec(mousePosition, { prevArrowPosition.x, prevArrowPosition.y, (float)prevArrow.width * arrowScale, (float)prevArrow.height * arrowScale }) && mousePressed) {
+                            currentImageIndex++; // เลื่อนไปรูปภาพถัดไป
+                        }
+                    }
+                
+                    backButton.Draw();
+                    if (backButton.isPressed(mousePosition, mousePressed)) {
+                        currentState = GameState::MENU;
+                    }
+                    break;
+                }
             case GameState::MODE_SELECT:
                 ClearBackground(RAYWHITE);
                 DrawTexture(selection_background,0,0,WHITE);
@@ -96,7 +145,6 @@ int main() {
                     ::CELL_SIZE = 500 / BOARD_SIZE;
                     ::NUM_MINES = 7;
                     currentState = GameState::GAME;
-                    game.InitializeBoard();
                 }
                 if (customButton.isPressed(mousePosition,mousePressed)) currentState = GameState::CUSTOM_SETUP;
                 if (backButton.isPressed(mousePosition,mousePressed)) currentState = GameState::MENU;
@@ -160,8 +208,6 @@ int main() {
                 }
                 
                 game.Draw(Bomb,BLWin,ORWin,Flag,TIE);
-
-                //back button
                 exitButton.Draw();
                 if (exitButton.isPressed(mousePosition,mousePressed)) {
                     currentState = GameState::MENU;
