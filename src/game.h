@@ -160,7 +160,7 @@ public:
         }
     }
     
-    void HandleClick(int row, int col) {
+    void HandleClick(int row, int col,Sound Boom) {
         if (gameOver || row >= BOARD_SIZE || col >= BOARD_SIZE || 
             board[row][col].isRevealed || board[row][col].isFlagged) {
             return;
@@ -169,6 +169,7 @@ public:
         board[row][col].isRevealed = true;
         
         if (board[row][col].isMine) {
+            PlaySound(Boom);
             revealedMines++;
             // -1 point
             if (player1Turn) {
@@ -227,7 +228,7 @@ public:
                     float scale = 1.0f;
                     if (elapsedWin < 1) {
                         scale = 1.0f + sinf((float)elapsedWin * (float)PI) * 0.2f;
-                        cell.x -= (CELL_SIZE * (scale - 1.0f)) / 2;
+                        cell.x -= (CELL_SIZE * (scale - 1.0f)) / 1;
                         cell.y -= (CELL_SIZE * (scale - 1.0f)) / 2;
                         cell.width *= scale;
                         cell.height *= scale;

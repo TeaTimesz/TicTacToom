@@ -18,6 +18,7 @@ bool IsButtonClicked(Rectangle button) {
 
 int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "TicTacToom");
+    InitAudioDevice();
     SetTargetFPS(60);
 
     Texture2D menu_background = LoadTexture("graphics/menubackground.png");
@@ -52,8 +53,16 @@ int main() {
     ImageResize(&image2,CELL_SIZE,CELL_SIZE);
     Texture2D Flag = LoadTextureFromImage(image2);
 
+    Music bgm = LoadMusicStream("sounds/bgm.mp3");
+    PlayMusicStream(bgm);
+    Sound pop = LoadSound("sounds/pop.mp3");
+    Sound boom = LoadSound("sounds/boom.mp3");
+
+
     while (!WindowShouldClose()) {
         BeginDrawing();
+
+        UpdateMusicStream(bgm);
 
         Vector2 mousePosition = GetMousePosition();
         bool mousePressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
@@ -70,8 +79,8 @@ int main() {
                 startButton.Draw();
                 tutorialButton.Draw();
             
-                if (startButton.isPressed(mousePosition,mousePressed)) currentState = GameState::MODE_SELECT;
-                if (tutorialButton.isPressed(mousePosition,mousePressed)) currentState = GameState::TUTORIAL;
+                if (startButton.isPressed(mousePosition,mousePressed)) {currentState = GameState::MODE_SELECT;PlaySound(pop);}
+                if (tutorialButton.isPressed(mousePosition,mousePressed)) {currentState = GameState::TUTORIAL;PlaySound(pop);}
                 break;
 
                 case GameState::TUTORIAL: {
@@ -126,6 +135,7 @@ int main() {
                 
                     backButton.Draw();
                     if (backButton.isPressed(mousePosition, mousePressed)) {
+                        PlaySound(pop);
                         currentState = GameState::MENU;
                     }
                     break;
@@ -141,13 +151,14 @@ int main() {
                 backButton.Draw();
 
                 if (defaultButton.isPressed(mousePosition,mousePressed)) {
+                    PlaySound(pop);
                     ::BOARD_SIZE = 7;
                     ::CELL_SIZE = 500 / BOARD_SIZE;
                     ::NUM_MINES = 7;
                     currentState = GameState::GAME;
                 }
-                if (customButton.isPressed(mousePosition,mousePressed)) currentState = GameState::CUSTOM_SETUP;
-                if (backButton.isPressed(mousePosition,mousePressed)) currentState = GameState::MENU;
+                if (customButton.isPressed(mousePosition,mousePressed)) {currentState = GameState::CUSTOM_SETUP;PlaySound(pop);}
+                if (backButton.isPressed(mousePosition,mousePressed)) {currentState = GameState::MENU;PlaySound(pop);}
                     break;
                 
             case GameState::CUSTOM_SETUP:
@@ -166,21 +177,24 @@ int main() {
                 backButton.Draw();
 
                 if (sizeUp.isPressed(mousePosition,mousePressed) && BOARD_SIZE< 10) { 
+                    PlaySound(pop);
                     BOARD_SIZE++; 
                     CELL_SIZE = 500 / BOARD_SIZE; 
                 }
-                if (sizeDown.isPressed(mousePosition,mousePressed) && BOARD_SIZE > 5) { 
+                if (sizeDown.isPressed(mousePosition,mousePressed) && BOARD_SIZE > 5) {
+                    PlaySound(pop);
                     BOARD_SIZE--; 
                     CELL_SIZE = 500 / BOARD_SIZE;
                 }
-                if (mineUp.isPressed(mousePosition,mousePressed) && NUM_MINES < BOARD_SIZE * BOARD_SIZE / 2) NUM_MINES++;
-                if (mineDown.isPressed(mousePosition,mousePressed) && NUM_MINES > 1) NUM_MINES--;
+                if (mineUp.isPressed(mousePosition,mousePressed) && NUM_MINES < BOARD_SIZE * BOARD_SIZE / 2) {NUM_MINES++;PlaySound(pop);}
+                if (mineDown.isPressed(mousePosition,mousePressed) && NUM_MINES > 1) {NUM_MINES--;PlaySound(pop);}
         
                 if (startButton.isPressed(mousePosition,mousePressed)) { 
+                    PlaySound(pop);
                     game.InitializeBoard();
                     currentState = GameState::GAME;
                 }
-                if (backButton.isPressed(mousePosition,mousePressed)) currentState = GameState::MODE_SELECT;
+                if (backButton.isPressed(mousePosition,mousePressed)) {currentState = GameState::MODE_SELECT;PlaySound(pop);}
                 break;
                 
             case GameState::GAME:
@@ -196,7 +210,7 @@ int main() {
                     
                     if (boardX >= 0 && boardX < BOARD_SIZE && boardY >= 0 && boardY < BOARD_SIZE) {
                         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                            game.HandleClick(boardY, boardX);
+                            game.HandleClick(boardY, boardX,boom);
                         } else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
                             game.ToggleFlag(boardY, boardX);
                         }
@@ -210,6 +224,7 @@ int main() {
                 game.Draw(Bomb,BLWin,ORWin,Flag,TIE);
                 exitButton.Draw();
                 if (exitButton.isPressed(mousePosition,mousePressed)) {
+                    PlaySound(pop);
                     currentState = GameState::MENU;
                     game.Reset();
                 }
@@ -217,8 +232,11 @@ int main() {
         
         }
         EndDrawing();
+
     }
+    CloseAudioDevice();
     UnloadImage(image1);
+    UnloadImage(image2);
     CloseWindow();
     return 0;
 }
