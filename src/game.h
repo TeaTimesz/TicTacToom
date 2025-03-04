@@ -173,9 +173,11 @@ public:
             revealedMines++;
             // -1 point
             if (player1Turn) {
-                player1Score--;
+                player1Score /= 2;
+                player1Turn = !player1Turn;
             } else {
-                player2Score--;
+                player2Score /= 2;
+                player1Turn = !player1Turn;
             }
             // Game ends when all mines are revealed
             if (revealedMines == NUM_MINES) {
